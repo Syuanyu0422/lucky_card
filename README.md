@@ -1,1 +1,1 @@
-# lucky_card
+made for my sister. just for fun.
