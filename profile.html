@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <title>個人頁面 & 我的卡冊</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: #fafafa;
+      color: #333;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    /* 回首頁按鈕 */
+    .back-btn {
+      text-decoration: none;
+      color: #666;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 20px;
+    }
+    /* 個人資訊區塊 */
+    .profile-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 30px;
+      position: relative;
+    }
+    .profile-info h1 {
+      margin: 0 0 10px 0;
+      font-size: 24px;
+    }
+    .profile-info p {
+      margin: 5px 0;
+      color: #666;
+    }
+    .edit-input {
+      font-size: 16px;
+      padding: 4px 8px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      margin-right: 5px;
+    }
+    .btn-small {
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+      background: #fff;
+    }
+    /* 進度條 */
+    .progress-container {
+      margin-top: 20px;
+    }
+    .progress-bar-bg {
+      background: #eee;
+      border-radius: 10px;
+      height: 12px;
+      width: 100%;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-bar-fill {
+      background: linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%);
+      height: 100%;
+      width: 0%; /* 動態計算 */
+      transition: width 0.5s ease;
+    }
+    /* 卡冊 6 * 3 佈局 */
+    .album-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr); /* 六格一排 */
+      grid-template-rows: repeat(3, auto);   /* 共三排 */
+      gap: 15px;
+      margin-top: 20px;
+    }
+    .card-slot {
+      background: #fff;
+      border: 1px dashed #ccc;
+      border-radius: 12px;
+      aspect-ratio: 2 / 3; /* 標準卡片比例 */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .card-slot.obtained {
+      border: none;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    .card-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-placeholder {
+      color: #bbb;
+      font-size: 13px;
+    }
+    /* 左下角測試垃圾桶 */
+    .test-trash-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: #fff;
+      border: 1px solid #ffcccb;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      transition: transform 0.2s;
+    }
+    .test-trash-btn:hover {
+      transform: scale(1.1);
+      background: #fff5f5;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <a href="index.html" class="back-btn">⬅️ 返回抽卡主頁</a>
+
+  <!-- 個人資訊區 -->
+  <div class="profile-card">
+    <div class="profile-info">
+      <h1 id="view-nickname">載入中... <button class="btn-small" onclick="enableEdit('nickname')">修改</button></h1>
+      <p>我的本命：<span id="view-bias">載入中...</span> <button class="btn-small" onclick="enableEdit('bias')">修改</button></p>
+    </div>
+    
+    <!-- 收集進度條 -->
+    <div class="progress-container">
+      <div>目前收集進度：<strong id="progress-text">0%</strong></div>
+      <div class="progress-bar-bg">
+        <div id="progress-fill" class="progress-bar-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 我的卡冊 (6格 * 3排) -->
+  <h2>我的卡冊</h2>
+  <div class="album-grid" id="album-grid">
+    <!-- 由 JS 動態生成 18 格卡片 -->
+  </div>
+</div>
+
+<!-- 左下角刪除 Cookie 測試垃圾桶 -->
+<button class="test-trash-btn" onclick="clearAllUserData()" title="刪除個人資料（測試用）">🗑️</button>
+
+<script>
+  // --- Cookie 工具組 ---
+  function setCookie(name, value, days = 30) {
+    const d = new Date();
+    d.setTime(d.getTime() + (days*24*60*60*1000));
+    document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+    return "";
+  }
+
+  // --- 初始化個人資料 ---
+  function initProfile() {
+    // 如果沒Cookie，給個預設值，避免畫面空白
+    if(!getCookie("nickname")) setCookie("nickname", "幸運的42");
+    if(!getCookie("bias")) setCookie("bias", "未選擇");
+
+    document.getElementById("view-nickname").innerHTML = `${getCookie("nickname")} <button class="btn-small" onclick="enableEdit('nickname')">修改</button>`;
+    document.getElementById("view-bias").innerText = getCookie("bias");
+    
+    renderAlbum();
+  }
+
+  // --- 線上修改功能 ---
+  function enableEdit(type) {
+    if (type === 'nickname') {
+      const current = getCookie("nickname");
+      document.getElementById("view-nickname").innerHTML = `
+        <input type="text" id="input-nickname" class="edit-input" value="${current}">
+        <button class="btn-small" onclick="saveEdit('nickname')">儲存</button>
+      `;
+    } else if (type === 'bias') {
+      const current = getCookie("bias");
+      document.getElementById("view-bias").parentNode.innerHTML = `
+        本命：<input type="text" id="input-bias" class="edit-input" value="${current}">
+        <button class="btn-small" onclick="saveEdit('bias')">儲存</button>
+      `;
+    }
+  }
+
+  function saveEdit(type) {
+    if (type === 'nickname') {
+      const newVal = document.getElementById("input-nickname").value;
+      setCookie("nickname", newVal);
+    } else if (type === 'bias') {
+      const newVal = document.getElementById("input-bias").value;
+      setCookie("bias", newVal);
+    }
+    // 重新載入渲染
+    window.location.reload();
+  }
+
+  // --- 渲染卡冊與計算進度 (6格 * 3排 = 18格) ---
+  function renderAlbum() {
+    const grid = document.getElementById("album-grid");
+    grid.innerHTML = "";
+    
+    const totalCards = 18;
+    // 💡 這裡假設你的已抽中卡片紀錄在 localStorage 的 "obtainedCards" 陣列裡
+    // 例如：["card_1", "card_3"]
+    const obtainedCards = JSON.parse(localStorage.getItem("obtainedCards") || "[]");
+    
+    let obtainedCount = 0;
+
+    for (let i = 1; i <= totalCards; i++) {
+      const cardId = `card_${i}`;
+      const slot = document.createElement("div");
+      slot.className = "card-slot";
+      
+      if (obtainedCards.includes(cardId)) {
+        slot.classList.add("obtained");
+        // 💡 這裡換成你實際的卡片圖片路徑，例如 `images/card_${i}.jpg`
+        slot.innerHTML = `<img src="images/card_${i}.jpg" class="card-img" alt="卡片 ${i}">`;
+        obtainedCount++;
+      } else {
+        slot.innerHTML = `<span class="card-placeholder">${i}</span>`;
+      }
+      grid.appendChild(slot);
+    }
+
+    // 計算並更新進度條
+    const progressPercent = Math.round((obtainedCount / totalCards) * 100);
+    document.getElementById("progress-text").innerText = `${progressPercent}%`;
+    document.getElementById("progress-fill").style.width = `${progressPercent}%`;
+  }
+
+  // --- 清空所有資料並重整 ---
+  function clearAllUserData() {
+    if(confirm("確定要刪除所有個人資料與 Cookie 嗎？（這將會重置為新用戶狀態）")) {
+      // 清除 Cookie
+      document.cookie = "nickname=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      document.cookie = "bias=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+      // 同步把卡冊紀錄也清掉，方便全新測試
+      localStorage.removeItem("obtainedCards");
+      
+      // 跳轉回首頁，直接觸發歡迎畫面
+      window.location.href = "index.html";
+    }
+  }
+
+  // 頁面載入時執行
+  window.onload = initProfile;
+</script>
+</body>
+</html>
