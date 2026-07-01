@@ -27,6 +27,42 @@
             padding: 20px;
         }
 
+        /* 抽卡相簿導向按鈕樣式 */
+        .album-link-btn {
+          position: fixed;
+          top: 20px;
+          right: 20px;
+          z-index: 9999; /* 確保按鈕永遠在最上層，不會被抽卡特效擋住 */
+          
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          
+          padding: 12px 20px;
+          background-color: #ffffff;
+          color: #333333;
+          font-size: 15px;
+          font-weight: bold;
+          text-decoration: none; /* 拔掉超連結底線 */
+          
+          border-radius: 50px; /* 膠囊形圓角 */
+          box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+          border: 1px solid #f0f0f0;
+          transition: all 0.3s ease; /* 讓滑入動畫變平滑 */
+          cursor: pointer;
+        }
+        
+        /* 滑鼠移上去時的互動效果（微放大、加深陰影） */
+        .album-link-btn:hover {
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          background-color: #fcfcfc;
+        }
+        
+        .album-link-btn .icon {
+          font-size: 18px;
+        }
+
         .game-container {
             background: white;
             width: 100%;
@@ -140,6 +176,9 @@
     </style>
 </head>
 <body>
+
+    <!-- 加上通往 album.html 的連結按鈕 -->
+    <a href="album.html" class="your-button-class">查看圖鑑 / 相簿</a>
 
     <div class="game-container">
         <!-- 1. 歡迎畫面 -->
