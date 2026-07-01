@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TWS 小卡抽卡遊戲 🧼</title>
     <style>
-        /* 網頁應援色系與字體設計 */
         :root {
             --tws-blue: #4A90E2;
             --tws-light-blue: #EBF3FF;
@@ -28,24 +27,21 @@
             padding: 20px;
         }
 
-        /* 遊戲主視窗卡片 */
         .game-container {
             background: white;
             width: 100%;
-            max-width: 400px;
-            height: 500px;
+            max-width: 450px;
+            min-height: 550px;
             border-radius: 24px;
             box-shadow: 0 10px 30px rgba(74, 144, 226, 0.15);
-            padding: 30px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             position: relative;
-            overflow: hidden;
         }
 
-        /* 隱藏未啟用的畫面 */
         .screen {
             display: none;
             width: 100%;
@@ -58,32 +54,26 @@
 
         .screen.active { display: flex; }
 
-        /* 標題與文字樣式 */
         h1 { font-size: 24px; color: var(--tws-blue); margin: 0 0 10px 0; font-weight: 800; letter-spacing: 1px; }
-        h2 { font-size: 20px; color: var(--text-dark); margin: 0 0 20px 0; }
+        h2 { font-size: 20px; color: var(--text-dark); margin: 0 0 15px 0; }
         p { color: #666; font-size: 14px; margin: 5px 0; }
         
-        /* 漂亮輸入框 */
         input[type="text"] {
-            width: 100%;
+            width: 80%;
             padding: 12px 16px;
             border: 2px solid #E0E0E0;
             border-radius: 12px;
             font-size: 16px;
             margin: 20px 0;
             outline: none;
-            transition: border-color 0.2s;
             text-align: center;
         }
-        input[type="text"]:focus { border-color: var(--tws-blue); }
 
-        /* 多選成員框排版 */
         .checkbox-group {
             width: 100%;
-            max-height: 240px;
+            max-height: 220px;
             overflow-y: auto;
             margin: 15px 0;
-            padding-right: 5px;
         }
 
         .checkbox-label {
@@ -94,16 +84,10 @@
             border-radius: 12px;
             margin-bottom: 8px;
             cursor: pointer;
-            transition: background 0.2s;
-            font-size: 15px;
-            color: var(--text-dark);
-            font-weight: 500;
         }
-        .checkbox-label:hover { background: #EDF4FF; }
         .checkbox-label input { margin-right: 12px; transform: scale(1.2); }
 
-        /* 萬用按鈕樣式 */
-        button {
+        button, .link-btn {
             background: var(--text-dark);
             color: white;
             border: none;
@@ -115,22 +99,18 @@
             transition: all 0.2s;
             width: 80%;
             margin-top: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
         }
-        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
-        button:active { transform: translateY(0); }
         
-        /* 抽卡按鈕特殊配色 */
         .draw-btn { background: var(--tws-blue); font-size: 18px; width: 100%; }
-        .sub-btn { background: #F1F5F9; color: var(--text-dark); box-shadow: none; width: 48%; margin: 5px; }
-        .sub-btn:hover { background: #E2E8F0; }
+        .sub-btn { background: #F1F5F9; color: var(--text-dark); width: 48%; margin: 5px; }
         .btn-row { display: flex; width: 100%; justify-content: center; margin-top: 15px; }
 
-        /* 玩家資訊列 */
-        .user-info { font-size: 14px; font-weight: bold; color: #7F8C8D; margin-bottom: 2px; }
-        .bias-info { font-size: 13px; color: var(--tws-pink); font-weight: 600; margin-bottom: 20px; }
+        .user-info { font-size: 14px; font-weight: bold; color: #7F8C8D; }
+        .bias-info { font-size: 13px; color: var(--tws-pink); font-weight: 600; margin-bottom: 15px; }
 
-        /* 抽卡結果展示區 */
         .result-box {
             font-size: 18px;
             font-weight: bold;
@@ -144,7 +124,8 @@
             width: 100%;
         }
 
-        /* 華麗的客製化 SSR/本命 彈窗 */
+        .change-name-lnk { font-size: 12px; color: #94A3B8; text-decoration: underline; cursor: pointer; margin-top: 8px; }
+
         .modal-overlay {
             display: none;
             position: fixed;
@@ -155,21 +136,20 @@
         .modal {
             background: white; padding: 30px; border-radius: 20px;
             text-align: center; width: 85%; max-width: 320px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div class="game-container">
+        <!-- 1. 歡迎畫面 -->
         <div id="welcome-screen" class="screen active">
             <h1 style="color: var(--tws-blue); font-size: 28px;">✨ WELCOME ✨</h1>
             <p style="font-size: 16px; margin-top: 10px;">歡迎來到 TWS 小卡抽卡遊戲</p>
             <p style="color: #999; margin-top: 20px;">遊戲即將開始，請稍候...</p>
         </div>
 
+        <!-- 2. 輸入暱稱畫面 -->
         <div id="nickname-screen" class="screen">
             <h2>🎵 建立您的角色 🎵</h2>
             <p>請輸入您的角色暱稱：</p>
@@ -177,13 +157,16 @@
             <button onclick="saveNickname()">下一步 ➡️</button>
         </div>
 
+        <!-- 3. 選擇本命畫面 -->
         <div id="bias-screen" class="screen">
             <h2>💖 選擇您的本命 💖</h2>
             <p id="bias-welcome-text"></p>
             <div class="checkbox-group" id="checkbox-container"></div>
             <button onclick="saveBias()">進入遊戲 🎮</button>
+            <div class="change-name-lnk" onclick="clearStoredName()">修改暱稱 ✏️</div>
         </div>
 
+        <!-- 4. 核心抽卡遊戲畫面 -->
         <div id="game-screen" class="screen">
             <div class="user-info" id="display-user"></div>
             <div class="bias-info" id="display-bias"></div>
@@ -195,19 +178,23 @@
             <div style="width: 100%;" id="action-area">
                 <button class="draw-btn" onclick="startDrawAnimation()">✨ 開始抽卡 ✨</button>
             </div>
+            
+            <!-- 🌟 真正的超連結：點了會刷新並跳轉到獨立的卡冊頁面 album.html -->
+            <a href="album.html" class="link-btn" style="background:#64748B; width:100%; margin-top:15px;">🗂️ 前往我的卡冊</a>
         </div>
 
+        <!-- 5. 感謝畫面 -->
         <div id="thankyou-screen" class="screen">
             <h1 style="color: var(--tws-pink); font-size: 28px;">✨ THANK YOU ✨</h1>
             <p id="thankyou-text" style="font-size: 16px; font-weight: bold;"></p>
             <p style="color: #666;">祝你天天追星快樂、本命運大爆發 💖</p>
-            <p style="color: #999; margin-top: 30px; font-size: 12px;">遊戲即將關閉重置...</p>
+            <p style="color: #999; margin-top: 30px; font-size: 12px;">遊戲即將重置...</p>
         </div>
     </div>
 
     <div class="modal-overlay" id="custom-modal">
         <div class="modal">
-            <h3 id="modal-title" style="margin: 0 0 10px 0; font-size: 20px;"></h3>
+            <h3 id="modal-title" style="margin: 0 0 10px 0;"></h3>
             <p id="modal-msg" style="font-size: 15px; color: #333; line-height: 1.5;"></p>
             <button onclick="closeModal()" style="width: 50%; margin-top: 20px; background: var(--tws-blue);">確定</button>
         </div>
@@ -215,124 +202,109 @@
 
     <script>
         const MEMBERS = ["SHINYU (申晶㬊)", "DOHOON (金道勳)", "YOUNGJAE (崔英宰)", "HANJIN (韓振)", "JIHOON (韓志薰)", "KYUNGMIN (李炅潣)"];
-        
         let nickname = "";
         let biasList = [];
+        let cardCollection = {};
 
-        // 啟動：停留 2 秒進入輸入暱稱畫面
         setTimeout(() => {
-            switchScreen("nickname-screen");
+            const savedCollection = localStorage.getItem("tws_card_collection");
+            if (savedCollection) cardCollection = JSON.parse(savedCollection);
+
+            const savedName = localStorage.getItem("tws_player_name");
+            if (savedName) {
+                nickname = savedName;
+                initBiasScreen();
+                switchScreen("bias-screen");
+            } else {
+                switchScreen("nickname-screen");
+            }
         }, 2000);
 
-        // 畫面切換控制
         function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(screenId).classList.add('active');
         }
 
-        // 自訂警告與訊息彈窗
         function showAlert(title, msg) {
             document.getElementById("modal-title").innerText = title;
             document.getElementById("modal-msg").innerText = msg;
             document.getElementById("custom-modal").style.display = "flex";
         }
-        function closeModal() {
-            document.getElementById("custom-modal").style.display = "none";
-        }
+        function closeModal() { document.getElementById("custom-modal").style.display = "none"; }
 
-        // 儲存暱稱
         function saveNickname() {
             const input = document.getElementById("nickname-input").value.trim();
-            if (!input) {
-                showAlert("提示", "請輸入暱稱喔！");
-                return;
-            }
+            if (!input) { showAlert("提示", "請輸入暱稱喔！"); return; }
             nickname = input;
-            
-            // 初始化並動態生成本命勾選清單
-            document.getElementById("bias-welcome-text").innerText = `嗨 ${nickname}！請勾選您的 TWS 本命（可多選）：`;
-            const container = document.getElementById("checkbox-container");
-            container.innerHTML = "";
-            MEMBERS.forEach(member => {
-                container.innerHTML += `
-                    <label class="checkbox-label">
-                        <input type="checkbox" name="bias" value="${member}">
-                        ${member}
-                    </label>
-                `;
-            });
+            localStorage.setItem("tws_player_name", nickname);
+            initBiasScreen();
             switchScreen("bias-screen");
         }
 
-        // 儲存本命
+        function initBiasScreen() {
+            document.getElementById("bias-welcome-text").innerText = `嗨 ${nickname}！請勾選您的 TWS 本命：`;
+            const container = document.getElementById("checkbox-container");
+            container.innerHTML = "";
+            MEMBERS.forEach(member => {
+                container.innerHTML += `<label class="checkbox-label"><input type="checkbox" name="bias" value="${member}"> ${member}</label>`;
+            });
+        }
+
+        function clearStoredName() {
+            localStorage.removeItem("tws_player_name");
+            document.getElementById("nickname-input").value = "";
+            switchScreen("nickname-screen");
+        }
+
         function saveBias() {
             const checkboxes = document.querySelectorAll('input[name="bias"]:checked');
             biasList = Array.from(checkboxes).map(cb => cb.value);
-            
-            if (biasList.length === 0) {
-                showAlert("提示", "請至少勾選一位本命成員喔！");
-                return;
-            }
-
-            // 初始化遊戲主畫面
+            if (biasList.length === 0) { showAlert("提示", "請至少勾選一位本命成員喔！"); return; }
             document.getElementById("display-user").innerText = `玩家：${nickname}`;
             const shortNames = biasList.map(b => b.split(" ")[0]);
             document.getElementById("display-bias").innerText = `您的本命：${shortNames.join("、")} 💕`;
-            
             switchScreen("game-screen");
         }
 
-        // 抽卡動畫效果
         function startDrawAnimation() {
             const resultDisplay = document.getElementById("result-display");
             const actionArea = document.getElementById("action-area");
-            
-            // 清空按鈕避免重複點擊，並顯示盲抽文字
             actionArea.innerHTML = "";
             resultDisplay.style.color = "#1D4ED8";
             resultDisplay.innerHTML = `✨ 正在盲抽小卡中... ✨<br><span style="font-size:14px; font-weight:normal; color:#7F8C8D;">[ 請屏住呼吸 ⏳ ]</span>`;
-            
-            // 延遲 1 秒執行結果
             setTimeout(executeDraw, 1000);
         }
 
-        // 核心抽卡邏輯
         function executeDraw() {
-            // 1. 機率決定稀有度：R(50%), SR(40%), SSR(10%)
             const rand = Math.random() * 100;
             let drawnRarity = "R";
             if (rand < 10) drawnRarity = "SSR";
             else if (rand < 50) drawnRarity = "SR";
 
-            // 2. 成員平分機率 (1/6)
             const drawnMember = MEMBERS[Math.floor(Math.random() * MEMBERS.length)];
             const isBias = biasList.includes(drawnMember);
-
             const resultDisplay = document.getElementById("result-display");
             
-            // 3. 畫面彩蛋色彩與文字邏輯
+            const memberShortName = drawnMember.split(" ")[0];
+            const cardKey = `${memberShortName}_${drawnRarity}`;
+            cardCollection[cardKey] = (cardCollection[cardKey] || 0) + 1;
+            localStorage.setItem("tws_card_collection", JSON.stringify(cardCollection));
+
             if (isBias) {
                 resultDisplay.style.color = "var(--tws-pink)";
-                resultDisplay.innerHTML = `🎉 🎊 本命爆發！！！ 🎊 🎉<br><span style="font-size:20px; color:#E11D48;">✨【${drawnRarity}】${drawnMember}✨</span><br><span style="font-size:13px; font-weight:normal;">(成功抽中本命！💖)</span>`;
+                resultDisplay.innerHTML = `🎉 🎊 本命爆發！！！ 🎊 🎉<br><span style="font-size:20px; color:#E11D48;">✨【${drawnRarity}】${drawnMember}✨</span>`;
             } else {
                 let rColor = "var(--r-gray)";
                 if (drawnRarity === "SSR") rColor = "var(--ssr-gold)";
                 if (drawnRarity === "SR") rColor = "var(--sr-blue)";
-                
                 resultDisplay.style.color = rColor;
                 resultDisplay.innerHTML = `恭喜獲得小卡：<br><span style="font-size:19px;">【${drawnRarity}】${drawnMember}</span>`;
             }
 
-            // 核心亮點：抽中 SSR 跳出華麗大彈窗
             if (drawnRarity === "SSR") {
-                if (isBias) {
-                    showAlert("🌟 ✨ 歐氣大爆發 ✨ 🌟", `恭喜 ${nickname} 抽中超稀有本命卡：\n【SSR】${drawnMember} ！！！`);
-                } else {
-                    showAlert("✨ 恭喜獲得超稀有小卡 ✨", `【SSR】${drawnMember} ！！！`);
-                }
+                showAlert("✨ 恭喜獲得超稀有小卡 ✨", `【SSR】${drawnMember} ！！！`);
             }
 
-            // 顯示後續選項按鈕
             const actionArea = document.getElementById("action-area");
             actionArea.innerHTML = `
                 <div class="btn-row">
@@ -342,14 +314,14 @@
             `;
         }
 
-        // 前往感謝畫面
         function goToThankyou() {
             document.getElementById("thankyou-text").innerText = `謝謝你的遊玩，${nickname}！`;
             switchScreen("thankyou-screen");
-            
-            // 2 秒後關閉重置（網頁端用重新整理來達成重置遊戲）
             setTimeout(() => {
-                location.reload();
+                switchScreen("bias-screen");
+                document.getElementById("result-display").style.color = "#7F8C8D";
+                document.getElementById("result-display").innerText = "[ 期待是誰呢？點擊下方抽卡！ ]";
+                document.getElementById("action-area").innerHTML = `<button class="draw-btn" onclick="startDrawAnimation()">✨ 開始抽卡 ✨</button>`;
             }, 2000);
         }
     </script>
