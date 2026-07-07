@@ -1,270 +1,458 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TWS 抽卡小遊戲 ✨</title>
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-      margin: 0;
-      padding: 40px 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TWS 小卡抽卡遊戲 🧼</title>
+    <style>
+        /* 網頁應援色系與字體設計 */
+        :root {
+            --tws-blue: #4A90E2;
+            --tws-light-blue: #EBF3FF;
+            --tws-pink: #FF6B8B;
+            --text-dark: #2C3E50;
+            --ssr-gold: #F5A623;
+            --sr-blue: #2F80ED;
+            --r-gray: #7F8C8D;
+        }
 
-    /* 右上角個人頁面入口 */
-    .profile-avatar-btn {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-      text-decoration: none;
-    }
-    .avatar-icon {
-      width: 45px;
-      height: 45px;
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 22px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-      transition: transform 0.2s;
-    }
-    .avatar-icon:hover {
-      transform: scale(1.1);
-    }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
 
-    .main-box {
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      text-align: center;
-      max-width: 600px;
-      width: 100%;
-      margin-top: 40px;
-    }
+        body {
+            background-color: var(--tws-light-blue);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
 
-    h1 { color: #333; margin-bottom: 5px; }
-    .welcome-user { color: #666; margin-bottom: 25px; font-weight: bold; }
+        /* 右上角個人頁面入口 */
+        .profile-avatar-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            text-decoration: none;
+        }
+        .avatar-icon {
+            width: 45px;
+            height: 45px;
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+        }
+        .avatar-icon:hover {
+            transform: scale(1.1);
+        }
 
-    /* 抽卡舞台 */
-    .card-stage {
-      width: 200px;
-      height: 300px;
-      border: 2px dashed #ccc;
-      border-radius: 15px;
-      margin: 20px auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: #fafafa;
-      font-size: 14px;
-      color: #999;
-      overflow: hidden;
-    }
-    .card-stage img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
+        /* 遊戲主視窗卡片 */
+        .game-container {
+            background: white;
+            width: 100%;
+            max-width: 400px;
+            height: 500px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(74, 144, 226, 0.15);
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-    .draw-btn {
-      background: linear-gradient(90deg, #a1c4fd 0%, #c2e9fb 100%);
-      border: none;
-      padding: 12px 40px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #333;
-      border-radius: 50px;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(161, 196, 253, 0.4);
-      transition: transform 0.2s;
-    }
-    .draw-btn:hover { transform: scale(1.05); }
+        /* 隱藏未啟用的畫面 */
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
 
-    /* 初次進站彈窗：完美並排 6 欄 */
-    .overlay {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-    }
-    .modal {
-      background: #fff;
-      padding: 30px;
-      border-radius: 20px;
-      max-width: 800px;
-      width: 90%;
-      text-align: center;
-    }
-    .modal input {
-      font-size: 16px;
-      padding: 10px;
-      width: 80%;
-      max-width: 300px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
+        .screen.active { display: flex; }
 
-    /* 🎯 關鍵修正：一排 6 個成員 */
-    .member-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr); 
-      gap: 10px;
-      margin: 20px 0;
-    }
-    .member-btn {
-      padding: 12px 5px;
-      border: 1px solid #ddd;
-      background: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-    .member-btn.selected {
-      background: #a1c4fd;
-      color: white;
-      border-color: #a1c4fd;
-    }
-    .submit-btn {
-      background: #333;
-      color: #fff;
-      border: none;
-      padding: 10px 30px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 15px;
-    }
-  </style>
+        /* 標題與文字樣式 */
+        h1 { font-size: 24px; color: var(--tws-blue); margin: 0 0 10px 0; font-weight: 800; letter-spacing: 1px; }
+        h2 { font-size: 20px; color: var(--text-dark); margin: 0 0 20px 0; }
+        p { color: #666; font-size: 14px; margin: 5px 0; }
+        
+        /* 漂亮輸入框 */
+        input[type="text"] {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #E0E0E0;
+            border-radius: 12px;
+            font-size: 16px;
+            margin: 20px 0;
+            outline: none;
+            transition: border-color 0.2s;
+            text-align: center;
+        }
+        input[type="text"]:focus { border-color: var(--tws-blue); }
+
+        /* 多選成員框排版 */
+        .checkbox-group {
+            width: 100%;
+            max-height: 240px;
+            overflow-y: auto;
+            margin: 15px 0;
+            padding-right: 5px;
+        }
+
+        /* 點擊時會整塊變亮，外觀像按鈕一樣精緻 */
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #F8FAFC;
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            color: var(--text-dark);
+            font-weight: bold;
+            border: 1px solid #E2E8F0;
+            position: relative;
+        }
+        .checkbox-label:hover { background: #EDF4FF; border-color: #a1c4fd; }
+        
+        /* 隱藏原生勾選框 */
+        .checkbox-label input { display: none; }
+
+        /* 勾選高亮樣式 */
+        .checkbox-label.selected {
+            background: #a1c4fd;
+            color: white;
+            border-color: #a1c4fd;
+            box-shadow: 0 4px 10px rgba(161, 196, 253, 0.3);
+        }
+        
+        /* 動態加入勾選符號 (✓) */
+        .checkbox-label.selected::before {
+            content: "✓ ";
+            font-weight: bold;
+            margin-right: 4px;
+        }
+
+        /* 萬用按鈕樣式 */
+        button {
+            background: var(--text-dark);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 80%;
+            margin-top: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.15); }
+        button:active { transform: translateY(0); }
+        
+        /* 抽卡按鈕特殊配色 */
+        .draw-btn { background: var(--tws-blue); font-size: 18px; width: 100%; }
+        .sub-btn { background: #F1F5F9; color: var(--text-dark); box-shadow: none; width: 48%; margin: 5px; }
+        .sub-btn:hover { background: #E2E8F0; }
+        .btn-row { display: flex; width: 100%; justify-content: center; margin-top: 15px; }
+
+        /* 玩家資訊列 */
+        .user-info { font-size: 14px; font-weight: bold; color: #7F8C8D; margin-bottom: 2px; }
+        .bias-info { font-size: 13px; color: var(--tws-pink); font-weight: 600; margin-bottom: 20px; }
+
+        /* 抽卡結果展示區 */
+        .result-box {
+            font-size: 18px;
+            font-weight: bold;
+            color: #7F8C8D;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            line-height: 1.6;
+            width: 100%;
+        }
+
+        /* 華麗的客製化 SSR/本命 彈窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6);
+            justify-content: center; align-items: center; z-index: 100;
+        }
+        .modal {
+            background: white; padding: 30px; border-radius: 20px;
+            text-align: center; width: 85%; max-width: 320px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            animation: popUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    </style>
 </head>
 <body>
 
-<!-- 右上角個人頁面入口 -->
-<a href="profile.html" class="profile-avatar-btn" title="個人頁面">
-  <div class="avatar-icon">👤</div>
-</a>
+    <!-- 右上角個人頁面入口 -->
+    <a href="profile.html" class="profile-avatar-btn" title="個人頁面">
+        <div class="avatar-icon">👤</div>
+    </a>
 
-<div class="main-box">
-  <h1>TWS 抽卡主頁</h1>
-  <div class="welcome-user" id="welcome-text">歡迎光臨！</div>
-  
-  <div class="card-stage" id="card-stage">
-    點擊下方按鈕開始抽卡 ✨
-  </div>
-  
-  <button class="draw-btn" onclick="drawCard()">快樂抽卡去 🎲</button>
-</div>
+    <div class="game-container">
+        <div id="welcome-screen" class="screen active">
+            <h1 style="color: var(--tws-blue); font-size: 28px;">✨ WELCOME ✨</h1>
+            <p style="font-size: 16px; margin-top: 10px;">歡迎來到 TWS 小卡抽卡遊戲</p>
+            <p style="color: #999; margin-top: 20px;">正在檢查角色狀態...</p>
+        </div>
 
-<!-- 初次進站歡迎彈窗 -->
-<div class="overlay" id="welcome-modal">
-  <div class="modal">
-    <h2>歡迎來到 TWS 抽卡世界 💙</h2>
-    <p>請輸入你的暱稱：</p>
-    <input type="text" id="user-nickname" placeholder="例如：幸運的42">
-    
-    <p>請選擇你的本命成員：</p>
-    <!-- 完美並排的 6 位成員選單 -->
-    <div class="member-grid">
-      <button class="member-btn" onclick="selectMember(this, '申惟')">申惟</button>
-      <button class="member-btn" onclick="selectMember(this, '道勳')">道勳</button>
-      <button class="member-btn" onclick="selectMember(this, '英宰')">英宰</button>
-      <button class="member-btn" onclick="selectMember(this, '韓振')">韓振</button>
-      <button class="member-btn" onclick="selectMember(this, '志薫')">志薫</button>
-      <button class="member-btn" onclick="selectMember(this, '炅潣')">炅潣</button>
+        <div id="nickname-screen" class="screen">
+            <h2>🎵 建立您的角色 🎵</h2>
+            <p>請輸入您的角色暱稱：</p>
+            <input type="text" id="nickname-input" placeholder="請輸入暱稱..." maxlength="12">
+            <button onclick="saveNickname()">下一步 ➡️</button>
+        </div>
+
+        <div id="bias-screen" class="screen">
+            <h2>💖 選擇您的本命 💖</h2>
+            <p id="bias-welcome-text"></p>
+            <div class="checkbox-group" id="checkbox-container"></div>
+            <button onclick="saveBias()">進入遊戲 🎮</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="user-info" id="display-user"></div>
+            <div class="bias-info" id="display-bias"></div>
+            
+            <div class="result-box" id="result-display">
+                [ 期待是誰呢？點擊下方抽卡！ ]
+            </div>
+
+            <div style="width: 100%;" id="action-area">
+                <button class="draw-btn" onclick="startDrawAnimation()">✨ 開始抽卡 ✨</button>
+            </div>
+        </div>
+
+        <div id="thankyou-screen" class="screen">
+            <h1 style="color: var(--tws-pink); font-size: 28px;">✨ THANK YOU ✨</h1>
+            <p id="thankyou-text" style="font-size: 16px; font-weight: bold;"></p>
+            <p style="color: #666;">祝你天天追星快樂、本命運大爆發 💖</p>
+            <p style="color: #999; margin-top: 30px; font-size: 12px;">遊戲即將關閉重置...</p>
+        </div>
     </div>
-    
-    <button class="submit-btn" onclick="saveUserData()">開啟抽卡旅程</button>
-  </div>
-</div>
 
-<script>
-  // --- Cookie 工具組 ---
-  function setCookie(name, value, days = 30) {
-    const d = new Date();
-    d.setTime(d.getTime() + (days*24*60*60*1000));
-    document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
-  }
+    <div class="modal-overlay" id="custom-modal">
+        <div class="modal">
+            <h3 id="modal-title" style="margin: 0 0 10px 0; font-size: 20px;"></h3>
+            <p id="modal-msg" style="font-size: 15px; color: #333; line-height: 1.5;"></p>
+            <button onclick="closeModal()" style="width: 50%; margin-top: 20px; background: var(--tws-blue);">確定</button>
+        </div>
+    </div>
 
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
-    return "";
-  }
+    <script>
+        // --- Cookie 工具組 ---
+        function setCookie(name, value, days = 30) {
+            const d = new Date();
+            d.setTime(d.getTime() + (days*24*60*60*1000));
+            document.cookie = `${name}=${encodeURIComponent(value)};expires=${d.toUTCString()};path=/`;
+        }
 
-  let selectedBias = "";
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return decodeURIComponent(parts.pop().split(';').shift());
+            return "";
+        }
 
-  // 選擇本命成員的點擊高亮效果
-  function selectMember(btn, name) {
-    const buttons = document.querySelectorAll('.member-btn');
-    buttons.forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    selectedBias = name;
-  }
+        const MEMBERS = ["SHINYU (申晶㬊)", "DOHOON (金道勳)", "YOUNGJAE (崔英宰)", "HANJIN (韓振)", "JIHOON (韓志薰)", "KYUNGMIN (李炅潣)"];
+        
+        let nickname = "";
+        let biasList = [];
 
-  // --- 檢查用戶狀態 ---
-  function checkUserStatus() {
-    const nickname = getCookie("nickname");
-    const bias = getCookie("bias");
+        // 檢查 Cookie 狀態
+        function checkUserStatus() {
+            const savedNickname = getCookie("nickname");
+            const savedBias = getCookie("bias");
 
-    if (nickname && bias) {
-      // 💡 已有 Cookie 紀錄，直接顯示歡迎字樣，不彈窗
-      document.getElementById("welcome-text").innerText = `嗨，${nickname}！你的本命是：${bias} ❤️`;
-    } else {
-      // 💡 沒有紀錄（初次進站或被垃圾桶刪除），顯示選單彈窗
-      document.getElementById("welcome-modal").style.display = "flex";
-    }
-  }
+            if (savedNickname && savedBias) {
+                nickname = savedNickname;
+                biasList = savedBias.split(", ");
+                
+                setTimeout(() => {
+                    initGameScreen();
+                }, 1500);
+            } else {
+                setTimeout(() => {
+                    switchScreen("nickname-screen");
+                }, 2000);
+            }
+        }
 
-  // 儲存新用戶資料
-  function saveUserData() {
-    const nickname = document.getElementById("user-nickname").value.trim();
-    if (!nickname) { alert("請輸入暱稱！"); return; }
-    if (!selectedBias) { alert("請選擇一位本命成員！"); return; }
+        // 畫面切換控制
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
 
-    setCookie("nickname", nickname);
-    setCookie("bias", selectedBias);
+        // 自訂警告與訊息彈窗
+        function showAlert(title, msg) {
+            document.getElementById("modal-title").innerText = title;
+            document.getElementById("modal-msg").innerText = msg;
+            document.getElementById("custom-modal").style.display = "flex";
+        }
+        function closeModal() {
+            document.getElementById("custom-modal").style.display = "none";
+        }
 
-    // 關閉彈窗並重整
-    document.getElementById("welcome-modal").style.display = "none";
-    window.location.reload();
-  }
+        // 儲存暱稱
+        function saveNickname() {
+            const input = document.getElementById("nickname-input").value.trim();
+            if (!input) {
+                showAlert("提示", "請輸入暱稱喔！");
+                return;
+            }
+            nickname = input;
+            
+            // 初始化並動態生成本命勾選清單
+            document.getElementById("bias-welcome-text").innerText = `嗨 ${nickname}！請點選您的 TWS 本命（可多選）：`;
+            const container = document.getElementById("checkbox-container");
+            container.innerHTML = "";
+            MEMBERS.forEach(member => {
+                container.innerHTML += `
+                    <label class="checkbox-label" onclick="toggleLabelHighlight(this)">
+                        <input type="checkbox" name="bias" value="${member}">
+                        ${member}
+                    </label>
+                `;
+            });
+            switchScreen("bias-screen");
+        }
 
-  // --- 模擬抽卡功能（總共 18 張卡） ---
-  function drawCard() {
-    // 隨機抽 1 ~ 18 號卡片
-    const cardNumber = Math.floor(Math.random() * 18) + 1;
-    const cardId = `card_${cardNumber}`;
+        // 切換 Label 的選取狀態（高亮與加 ✓ 號）
+        function toggleLabelHighlight(label) {
+            const checkbox = label.querySelector('input[type="checkbox"]');
+            setTimeout(() => {
+                if (checkbox.checked) {
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
+            }, 10);
+        }
 
-    // 更新舞台畫面 (💡 請確保你有對應的圖片路徑，例如 images/card_1.jpg)
-    const stage = document.getElementById("card-stage");
-    stage.innerHTML = `<img src="images/card_${cardNumber}.jpg" alt="卡片" onerror="this.src='https://placehold.co/200x300?text=Card+${cardNumber}'">`;
+        // 儲存本命並寫入 Cookie
+        function saveBias() {
+            const checkboxes = document.querySelectorAll('input[name="bias"]:checked');
+            biasList = Array.from(checkboxes).map(cb => cb.value);
+            
+            if (biasList.length === 0) {
+                showAlert("提示", "請至少選取一位本命成員喔！");
+                return;
+            }
 
-    // 把抽中的卡片序號存入 localStorage (提供給 profile.html 計算卡冊與進度)
-    let obtainedCards = JSON.parse(localStorage.getItem("obtainedCards") || "[]");
-    if (!obtainedCards.includes(cardId)) {
-      obtainedCards.push(cardId);
-      localStorage.setItem("obtainedCards", JSON.stringify(obtainedCards));
-    }
-  }
+            setCookie("nickname", nickname);
+            setCookie("bias", biasList.join(", "));
 
-  // 頁面載入執行
-  window.onload = checkUserStatus;
-</script>
+            initGameScreen();
+        }
+
+        // 渲染初始化遊戲主畫面
+        function initGameScreen() {
+            document.getElementById("display-user").innerText = `玩家：${nickname}`;
+            const shortNames = biasList.map(b => b.split(" ")[0]);
+            document.getElementById("display-bias").innerText = `您的本命：${shortNames.join("、")} 💕`;
+            switchScreen("game-screen");
+        }
+
+        // 抽卡動畫效果
+        function startDrawAnimation() {
+            const resultDisplay = document.getElementById("result-display");
+            const actionArea = document.getElementById("action-area");
+            
+            actionArea.innerHTML = "";
+            resultDisplay.style.color = "#1D4ED8";
+            resultDisplay.innerHTML = `✨ 正在盲抽小卡中... ✨<br><span style="font-size:14px; font-weight:normal; color:#7F8C8D;">[ 請屏住呼吸 ⏳ ]</span>`;
+            
+            setTimeout(executeDraw, 1000);
+        }
+
+        // 核心抽卡邏輯
+        function executeDraw() {
+            const rand = Math.random() * 100;
+            let drawnRarity = "R";
+            if (rand < 10) drawnRarity = "SSR";
+            else if (rand < 50) drawnRarity = "SR";
+
+            const randomMemberIdx = Math.floor(Math.random() * MEMBERS.length);
+            const drawnMember = MEMBERS[randomMemberIdx];
+            const isBias = biasList.includes(drawnMember);
+
+            const cardNum = Math.floor(Math.random() * 18) + 1;
+            const cardId = `card_${cardNum}`;
+            let obtainedCards = JSON.parse(localStorage.getItem("obtainedCards") || "[]");
+            if (!obtainedCards.includes(cardId)) {
+                obtainedCards.push(cardId);
+                localStorage.setItem("obtainedCards", JSON.stringify(obtainedCards));
+            }
+
+            const resultDisplay = document.getElementById("result-display");
+            
+            if (isBias) {
+                resultDisplay.style.color = "var(--tws-pink)";
+                resultDisplay.innerHTML = `🎉 🎊 本命爆發！！！ 🎊 🎉<br><span style="font-size:20px; color:#E11D48;">✨【${drawnRarity}】${drawnMember}✨</span><br><span style="font-size:13px; font-weight:normal;">(成功抽中本命！💖)</span>`;
+            } else {
+                let rColor = "var(--r-gray)";
+                if (drawnRarity === "SSR") rColor = "var(--ssr-gold)";
+                if (drawnRarity === "SR") rColor = "var(--sr-blue)";
+                
+                resultDisplay.style.color = rColor;
+                resultDisplay.innerHTML = `恭喜獲得小卡：<br><span style="font-size:19px;">【${drawnRarity}】${drawnMember}</span>`;
+            }
+
+            if (drawnRarity === "SSR") {
+                if (isBias) {
+                    showAlert("🌟 ✨ 歐氣大爆發 ✨ 🌟", `恭喜 ${nickname} 抽中超稀有本命卡：\n【SSR】${drawnMember} ！！！`);
+                } else {
+                    showAlert("✨ 恭喜獲得超稀有小卡 ✨", `【SSR】${drawnMember} ！！！`);
+                }
+            }
+
+            const actionArea = document.getElementById("action-area");
+            actionArea.innerHTML = `
+                <div class="btn-row">
+                    <button class="sub-btn" onclick="startDrawAnimation()">繼續抽卡 🔄</button>
+                    <button class="sub-btn" style="color:#EF4444;" onclick="goToThankyou()">結束遊戲 ❌</button>
+                </div>
+            `;
+        }
+
+        // 前往感謝畫面
+        function goToThankyou() {
+            document.getElementById("thankyou-text").innerText = `謝謝你的遊玩，${nickname}！`;
+            switchScreen("thankyou-screen");
+            
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
+
+        // 頁面載入時直接啟動狀態檢查
+        window.onload = checkUserStatus;
+    </script>
 </body>
 </html>
